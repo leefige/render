@@ -10,6 +10,7 @@
 #include "float3.h"
 #include "Render.h"
 #include <opencv2/opencv.hpp>
+#include <time.h>
 
 using namespace cv;
 
@@ -46,19 +47,23 @@ uchar Camera::regularizeColor(double x) const {
 
 Mat Camera::printPhoto() const {
     Mat mat(h, w, CV_8UC3);
+    printf("\nPrinting photo...\n");
+#pragma omp parallel for       // OpenMP
     for (int i = 0; i < w; i++)
         for (int j = 0; j < h; j++) {
             mat.at<Vec3b>(j, i)[0] = regularizeColor(film.c[j * w + i].b);
             mat.at<Vec3b>(j, i)[1] = regularizeColor(film.c[j * w + i].g);
             mat.at<Vec3b>(j, i)[2] = regularizeColor(film.c[j * w + i].r);
         }
+    printf("Finished!\n");
     return mat;
 }
 
 void Camera::takePhoto(Scene *scene) {
     float3 cx = float3(w * f_len / h, 0, 0);
     float3 cy = cx.cross(direct).normalize() * f_len;
-    unsigned int seed = int(&cx) * int(&cy);
+    time_t ctime = time(NULL);
+    unsigned int seed = int(ctime);
     srand(seed);
     render->rendering(h, w, cx, cy, pos, direct, scene->objs, film, samples);
 }

@@ -77,7 +77,8 @@ Color PathTracing::tracing(Light light, int depth, vector<Object *> &objs) {
 }
 
 void PathTracing::rendering(int h, int w, float3 fx, float3 fy, float3 pos, float3 dir, vector<Object *> &objs,
-                            Film &film, int samples) {
+                            Film &film, int samples)
+{
 #pragma omp parallel for       // OpenMP
     for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++) {

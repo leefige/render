@@ -22,13 +22,14 @@ int main(int argc, char** argv) {
     /*-------------------Setup Scene-------------------*/
 
     Material* sp1_m = new Grain(DIFFUSE, "../grain/wood.jpg");
-    Sphere sphere1(float3(27, 9, 90), 9, sp1_m);
+    Sphere sphere1(float3(40, 9.5, 100), 9.5, sp1_m);
 
     Material* sp2_m = new PureColor(REFRACTIVE, Color(200, 200, 200));
-    Sphere sphere2(float3(73,17,78), 17, sp2_m);
+    Sphere sphere2(float3(73,15,78), 15, sp2_m);
 
-    Material* sp3_m = new PureColor(SPECULAR, Color(200, 200, 200));
-    Sphere sphere3(float3(27,15,37), 15, sp3_m);
+    Material* sp3_m = new Grain(SPECULAR, "../grain/marble.bmp");
+//    Material* sp3_m = new PureColor(SPECULAR, Color(200, 200, 200));
+    Sphere sphere3(float3(27,17,37), 17, sp3_m);
 
     Material* lt_m = new PureColor(DIFFUSE, Color(), Color(5000, 5000, 5000));
     Sphere light(float3(50,681.6-.27,81.6), 600, lt_m);
@@ -39,16 +40,17 @@ int main(int argc, char** argv) {
     Material* rw_m = new PureColor(DIFFUSE, Color(200, 100, 200));
     Sphere right(float3(-1e5+99,40.8,81.6), 1e5, rw_m);
 
-    Material* bw_m = new PureColor(DIFFUSE, Color(200, 200, 200));
+    Material* bw_m = new PureColor(SPECULAR, Color(200, 200, 200));
     Sphere back(float3(50,40.8, 1e5), 1e5, bw_m);
 
-    Material* fw_m = new PureColor(DIFFUSE, Color(0, 0, 0));
+    Material* fw_m = new PureColor(SPECULAR, Color(50, 50, 50));
     Sphere front(float3(50,40.8,-1e5+170), 1e5, fw_m);
 
-    Material* floor_m = new Grain(DIFFUSE, "../grain/floor.bmp");
-    Sphere bot(float3(50, 1e5, 81.6), 1e5, floor_m);
+    Material* fl_m = new PureColor(DIFFUSE, Color(200, 200, 100));
+    Sphere bot(float3(50, 1e5, 81.6), 1e5, fl_m);
 
-    Sphere top(float3(50,-1e5+81.6,81.6), 1e5, bw_m);
+    Material* tp_m = new PureColor(DIFFUSE, Color(200, 200, 200));
+    Sphere top(float3(50,-1e5+81.6,81.6), 1e5, tp_m);
 
     scene.addObj(&sphere1);
     scene.addObj(&sphere2);
@@ -66,9 +68,20 @@ int main(int argc, char** argv) {
     camera.takePhoto(&scene);
     Mat photo = camera.printPhoto();
     stringstream ss; string ptr;
-    ss << int(&photo); ss >> ptr;
-    string out_path = string("../img/pic-") + ptr + string(".png");
+    time_t ctime = time(NULL);
+    ss << int(ctime); ss >> ptr;
+    string out_path = string("../img/pic-") + ptr + string(".bmp");
+    string pre_path = string("../img/preview-") + ptr + string(".png");
+
+    vector<int>compression_params;
+    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+    compression_params.push_back(9);
+
     imwrite(out_path, photo);
+    imwrite(pre_path, photo, compression_params);
+
+    imshow("Preview", photo);
+    cvWaitKey(0);
 
     /*--------------------Clean-------------------*/
 
@@ -80,6 +93,8 @@ int main(int argc, char** argv) {
     delete lt_m;
     delete bw_m;
     delete fw_m;
+    delete fl_m;
+    delete tp_m;
     delete render;
 
     return 0;
