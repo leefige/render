@@ -11,8 +11,6 @@
 #include "Color.h"
 #include "Material.h"
 
-//enum ReflectType { DIFFUSE, SPECULAR, REFRACTIVE};
-
 class Object {
 public:
     float3 pos;

@@ -19,6 +19,8 @@ int main(int argc, char** argv) {
     Render* render = new PathTracing;
     Camera camera(1024, 768, float3(50, 52, 295.6), float3(0, -0.042612, -1).normalize(), 0.5312, smpl, render);
 
+    /*-------------------Setup Scene-------------------*/
+
     Material* sp1_m = new Grain(DIFFUSE, "../grain/wood.jpg");
     Sphere sphere1(float3(27, 9, 90), 9, sp1_m);
 
@@ -43,7 +45,8 @@ int main(int argc, char** argv) {
     Material* fw_m = new PureColor(DIFFUSE, Color(0, 0, 0));
     Sphere front(float3(50,40.8,-1e5+170), 1e5, fw_m);
 
-    Sphere bot(float3(50, 1e5, 81.6), 1e5, bw_m);
+    Material* floor_m = new Grain(DIFFUSE, "../grain/floor.bmp");
+    Sphere bot(float3(50, 1e5, 81.6), 1e5, floor_m);
 
     Sphere top(float3(50,-1e5+81.6,81.6), 1e5, bw_m);
 
@@ -58,12 +61,16 @@ int main(int argc, char** argv) {
     scene.addObj(&bot);
     scene.addObj(&top);
 
+    /*---------------Start rendering---------------*/
+
     camera.takePhoto(&scene);
     Mat photo = camera.printPhoto();
     stringstream ss; string ptr;
     ss << int(&photo); ss >> ptr;
     string out_path = string("../img/pic-") + ptr + string(".png");
     imwrite(out_path, photo);
+
+    /*--------------------Clean-------------------*/
 
     delete sp1_m;
     delete sp2_m;
