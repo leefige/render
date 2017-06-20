@@ -10,7 +10,7 @@
 #include "Light.h"
 #include <vector>
 
-#define MAX_THREADS 8
+#define MAX_THREADS 12
 
 class PathTracing: public Render {
     bool* completeThread;
@@ -28,7 +28,7 @@ public:
     void
     sampling(int x, int y, int threadID);
 
-    void multiSampling(int &y, int &x, bool &isFin);
+    void multiSampling(int y, int x);
 };
 
 #endif //RENDER_PATHTRACING_H

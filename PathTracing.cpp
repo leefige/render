@@ -12,12 +12,14 @@
 
 using namespace std;
 
-mutex * completeRow;
+mutex* complete;
 
 Color PathTracing::tracing(Light light, int depth, vector<Object *> &objs) {
     double distance;
     int obj_index;
-    if (!inter(light, obj_index, distance, objs)) return Color();
+    if (!inter(light, obj_index, distance, objs))
+        return Color();
+
     float3 pos = light.pos + light.direct * distance;
     Object *obj = objs[obj_index];
     float3 n = obj->n;
@@ -92,53 +94,67 @@ void PathTracing::rendering(int h, int w, float3 fx, float3 fy, float3 pos, floa
     this->film = &film;
     this->samples = samples;
 
-    for (int y = 0; y < h; y++) {
-        int x = 0;
-        while(x < w) {
-            for (bool end = false; !end;) {
-                end = true;
-                multiSampling(y, x, end);
+    if(samples > 1) {
+//#define MULTI_SAMPLE
+        for (int y = 0; y < h; y++) {
+            int x = 0;
+            while (x < w) {
+                multiSampling(y, x);
+                x += MAX_THREADS;
+            }
+        }
+    }
+
+    else{
+//#define OMP_SAMPLE
+        for (int y = 0; y < h; y++) {
+            for(int x = 0; x < w; x++)
+            {
+                sampling(x, y, -1);
             }
         }
     }
 }
 
-void PathTracing::multiSampling(int &y, int &x, bool &isFin) {
+void PathTracing::multiSampling(int y, int x) {
     completeThread = new bool[MAX_THREADS];
     memset(completeThread, 0, MAX_THREADS * sizeof(bool));
     for(int i = 0; i < MAX_THREADS; i++)
-            {
-                thread subThread(&sampling, this, x, y, i);
-                x++;
-                if (i == MAX_THREADS - 1)
-                    subThread.join();
-                else
-                    subThread.detach();
-            }
+    {
+        thread subThread(&sampling, this, x + i, y, i);
+        printf("\r [%5.2lf%%] Rendering......i =%d, y=%d, x=%d", (y * w + x) * 100 / double(h * w), i, y, x);
+        if (i == MAX_THREADS - 1)
+            subThread.join();
+        else
+            subThread.detach();
+    }
 
-    for (bool end = false; !end; ) {
-                end = true;
-                for (int i = 0; i < MAX_THREADS; i++) {
-                    if (!completeThread[i]) {
-                        end = false;
-                    }
-//                  else {
-//                        printf("true\n");
-//                    }
-                }
+    bool end = false;
+    while(!end) {
+        end = true;
+        for (int i = 0; i < MAX_THREADS; i++) {
+            //printf("i=%d\n", i);
+            if (!completeThread[i]) {
+                end = false;
+                break;
+            } else{
+//                printf("true\n");
             }
+        }
+    }
     delete[] completeThread;
     completeThread = NULL;
-    isFin = true;
+//    isFin = true;
 }
 
 void PathTracing::sampling(int x, int y, int threadID)
 {
-    printf("\r [%5.2lf%%] Rendering......", (y * w + x) * 100 / double(h * w));
     for (int sy = 0; sy < 2; sy++) {
         for (int sx = 0; sx < 2; sx++) {
             Color pix = Color();
+//#if defined(OMP_SAMPLE)
 //#pragma omp parallel for schedule(dynamic, 1)      // OpenMP
+//#endif
             for (int s = 0; s < samples; s++) {
                 double r1 = 2 * rand() / (double) RAND_MAX;
                 double dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
@@ -146,7 +162,9 @@ void PathTracing::sampling(int x, int y, int threadID)
                 double dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
                 float3 d = fx * (((sx + 0.5 + dx) / 2 + x) / w - 0.5) +
                            fy * (((sy + 0.5 + dy) / 2 + y) / h - 0.5) + direct;
+//#if defined(OMP_SAMPLE)
 //#pragma omp critical
+//#endif
                 {
                     pix = pix + tracing(Light(pos + d * 130, d.normalize()), 0, *objs) * (1.0 / samples);
                 }
@@ -154,5 +172,6 @@ void PathTracing::sampling(int x, int y, int threadID)
             film->writePix(x, y, pix);
         }
     }
-    completeThread[threadID] = true;
+    if (threadID >= 0)
+        completeThread[threadID] = true;
 }
