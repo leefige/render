@@ -17,19 +17,19 @@ double Sphere::inter(Light light) {
     double det = b * b - v * v + r * r;
     if (det < 0) return -1;
     else det = sqrt(det);
-    double ans;
+    double rslt;
     if (b - det > eps)
-        ans = b - det;
+        rslt = b - det;
     else if (b + det > eps)
-        ans = b + det;
+        rslt = b + det;
     else
-        ans =  -1;
+        rslt =  -1;
 
-    if (ans > eps) {
-        n = (light.pos + light.direct * ans - pos).normalize();
+    if (rslt > eps) {
+        n = (light.pos + light.direct * rslt - pos).normalize();
         isIn = (light.direct * n > 0);
     }
-    return ans;
+    return rslt;
 }
 
 Color Sphere::getColor() {
@@ -40,11 +40,15 @@ Color Sphere::getColor() {
     else
     {
         double a = acos(sgn(-(n * float3(0, 0, 1))));
-        double b = sin(a) == 0 ? 1 : acos(sgn(min(max(n * float3(0, 1, 0) / sin(a), -1.0), 1.0)));
+        double b = acos( std::min( std::max( n * float3(0, 1, 0) / sin( a ) , -1.0 ) , 1.0 ) );
+//        double b = sin(a) == 0 ? 1 : acos(sgn(min(max(n * float3(0, 1, 0) / sin(a), -1.0), 1.0)));
         double u = a / M_PI, v = b / 2 / M_PI;
 
         if (n * float3(1, 0, 0) < 0)
             v = 1 - v;
+
+//        u = u + 0.5 > 1 ? u - 0.5 : u + 0.5;
+//        v = v + 0.5 > 1 ? v - 0.5 : v + 0.5;
         return mater->getColor(u, v);
     }
 }

@@ -14,15 +14,15 @@ float3::float3() {
     z = 0;
 }
 
-float3& float3::operator=(const float3 &b) {
-    x = b.x;
-    y = b.y;
-    z = b.z;
+float3& float3::operator=(const float3 &f) {
+    x = f.x;
+    y = f.y;
+    z = f.z;
     return *this;
 }
 
-float3 float3::operator+(const float3 &b) const {
-    return float3(x + b.x, y + b.y, z + b.z);
+float3 float3::operator+(const float3 &f) const {
+    return float3(x + f.x, y + f.y, z + f.z);
 }
 
 float3 float3::operator*(double r) const {
@@ -39,27 +39,27 @@ bool float3::operator!=(const float3 &rhs) const {
     return !(rhs == *this);
 }
 
-float3 float3::operator-(const float3 &b) const {
-    return float3(x - b.x, y - b.y, z - b.z);
+float3 float3::operator-(const float3 &f) const {
+    return float3(x - f.x, y - f.y, z - f.z);
 }
 
-double float3::dot(const float3 &b) const {
-    return x * b.x + y * b.y + z * b.z;
+double float3::dot(const float3 &f) const {
+    return x * f.x + y * f.y + z * f.z;
 }
 
-float3 float3::cross(const float3 &b) const {
-    return float3(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
+float3 float3::cross(const float3 &f) const {
+    return float3(y * f.z - z * f.y, z * f.x - x * f.z, x * f.y - y * f.x);
 }
 
 float3 float3::normalize() const {
-    double mod = sqrtf(this->dot(*this));
+    double mod = sqrtf(dot(*this));
     return *this * (1 / mod);
 }
 
-double float3::operator*(const float3 &b) const {
-    return dot(b);
+double float3::operator*(const float3 &f) const {
+    return dot(f);
 }
 
-float3 operator*(double r, const float3 &a) {
-    return a * r;
+float3 operator*(double r, const float3 &f) {
+    return f * r;
 }

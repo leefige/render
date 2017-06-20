@@ -21,32 +21,35 @@ int main(int argc, char** argv) {
 
     /*-------------------Setup Scene-------------------*/
 
-    Material* sp1_m = new Grain(DIFFUSE, "../grain/wood.jpg");
-    Sphere sphere1(float3(40, 9.5, 100), 9.5, sp1_m);
+    Material* sp1_m = new Grain(DIFFUSE, "../grain/concrete.jpg");
+    Sphere sphere1(float3(40, 9.5, 94), 9.5, sp1_m);
 
     Material* sp2_m = new PureColor(REFRACTIVE, Color(200, 200, 200));
-    Sphere sphere2(float3(73,15,78), 15, sp2_m);
+    Sphere sphere2(float3(73,14,78), 14, sp2_m);
 
     Material* sp3_m = new Grain(SPECULAR, "../grain/marble.bmp");
 //    Material* sp3_m = new PureColor(SPECULAR, Color(200, 200, 200));
     Sphere sphere3(float3(27,17,37), 17, sp3_m);
 
+    Material* sp4_m = new Grain(REFRACTIVE, "../grain/wallpaper.jpg");
+    Sphere sphere4(float3(55, 6, 114), 6, sp4_m);
+
     Material* lt_m = new PureColor(DIFFUSE, Color(), Color(5000, 5000, 5000));
-    Sphere light(float3(50,681.6-.27,81.6), 600, lt_m);
+    Sphere light(float3(50,681.6-.27,84), 600, lt_m);
 
     Material* lw_m = new PureColor(DIFFUSE, Color(200, 100, 100));
     Sphere left(float3(1e5+1,40.8,81.6), 1e5, lw_m);
 
-    Material* rw_m = new PureColor(DIFFUSE, Color(200, 100, 200));
+    Material* rw_m = new PureColor(DIFFUSE, Color(180, 100, 220));
     Sphere right(float3(-1e5+99,40.8,81.6), 1e5, rw_m);
 
-    Material* bw_m = new PureColor(SPECULAR, Color(200, 200, 200));
+    Material* bw_m = new PureColor(SPECULAR, Color(50, 50, 50));
     Sphere back(float3(50,40.8, 1e5), 1e5, bw_m);
 
-    Material* fw_m = new PureColor(SPECULAR, Color(50, 50, 50));
+    Material* fw_m = new PureColor(SPECULAR, Color(170, 170, 170));
     Sphere front(float3(50,40.8,-1e5+170), 1e5, fw_m);
 
-    Material* fl_m = new PureColor(DIFFUSE, Color(200, 200, 100));
+    Material* fl_m = new PureColor(DIFFUSE, Color(200, 200, 120));
     Sphere bot(float3(50, 1e5, 81.6), 1e5, fl_m);
 
     Material* tp_m = new PureColor(DIFFUSE, Color(200, 200, 200));
@@ -55,6 +58,7 @@ int main(int argc, char** argv) {
     scene.addObj(&sphere1);
     scene.addObj(&sphere2);
     scene.addObj(&sphere3);
+    scene.addObj(&sphere4);
     scene.addObj(&light);
     scene.addObj(&left);
     scene.addObj(&right);
@@ -70,7 +74,7 @@ int main(int argc, char** argv) {
     stringstream ss; string ptr;
     time_t ctime = time(NULL);
     ss << int(ctime); ss >> ptr;
-    string out_path = string("../img/pic-") + ptr + string(".bmp");
+    string out_path = string("../img/bmp/pic-") + ptr + string(".bmp");
     string pre_path = string("../img/preview-") + ptr + string(".png");
 
     vector<int>compression_params;
@@ -88,6 +92,7 @@ int main(int argc, char** argv) {
     delete sp1_m;
     delete sp2_m;
     delete sp3_m;
+    delete sp4_m;
     delete lw_m;
     delete rw_m;
     delete lt_m;

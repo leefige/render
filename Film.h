@@ -10,15 +10,19 @@
 class Film {
     int w, h;
 public:
-    Color * c;
+    Color * pixes;
     Film(int w, int h): w(w), h(h)
     {
-        c = new Color [w * h];
+        pixes = new Color [w * h];
     }
 
     virtual ~Film(){
-        if(c)
-            delete [] c;
+        if(pixes)
+            delete [] pixes;
+    }
+
+    void writePix(int x, int y, const Color &pix) {
+        pixes[(h - y - 1) * w + x] = pixes[(h - y - 1) * w + x] + pix.normalize() * 0.25;
     }
 };
 

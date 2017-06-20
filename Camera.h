@@ -32,7 +32,6 @@ public:
             h(height), film(width, height), samples(samples), render(render), f_len(f_len) {}
 
     Mat printPhoto() const;
-
     void takePhoto(Scene *scene);
 };
 
@@ -48,14 +47,14 @@ uchar Camera::regularizeColor(double x) const {
 Mat Camera::printPhoto() const {
     Mat mat(h, w, CV_8UC3);
     printf("\nPrinting photo...\n");
-#pragma omp parallel for       // OpenMP
+//#pragma omp parallel for       // OpenMP
     for (int i = 0; i < w; i++)
         for (int j = 0; j < h; j++) {
-            mat.at<Vec3b>(j, i)[0] = regularizeColor(film.c[j * w + i].b);
-            mat.at<Vec3b>(j, i)[1] = regularizeColor(film.c[j * w + i].g);
-            mat.at<Vec3b>(j, i)[2] = regularizeColor(film.c[j * w + i].r);
+            mat.at<Vec3b>(j, i)[0] = regularizeColor(film.pixes[j * w + i].b);
+            mat.at<Vec3b>(j, i)[1] = regularizeColor(film.pixes[j * w + i].g);
+            mat.at<Vec3b>(j, i)[2] = regularizeColor(film.pixes[j * w + i].r);
         }
-    printf("Finished!\n");
+    printf("Finished!\n\n");
     return mat;
 }
 
@@ -64,7 +63,7 @@ void Camera::takePhoto(Scene *scene) {
     float3 cy = cx.cross(direct).normalize() * f_len;
     time_t ctime = time(NULL);
     unsigned int seed = int(ctime);
-    srand(seed);
+//    srand(seed);
     render->rendering(h, w, cx, cy, pos, direct, scene->objs, film, samples);
 }
 

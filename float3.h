@@ -19,19 +19,19 @@ public:
 
     bool operator==(const float3 &rhs) const;
     bool operator!=(const float3 &rhs) const;
-    float3& operator = (const float3 &b);
+    float3& operator = (const float3 &f);
 
-    float3 operator + (const float3 & b) const;
-    float3 operator - (const float3 & b) const;
+    float3 operator + (const float3 & f) const;
+    float3 operator - (const float3 & f) const;
     float3 operator * (double r) const;
-    double operator *(const float3 &b) const;
+    double operator *(const float3 &f) const;
 
-    double dot(const float3 &b) const;
+    double dot(const float3 &f) const;
     float3 normalize() const;
-    float3 cross(const float3 &b) const;
+    float3 cross(const float3 &f) const;
 };
 
-float3 operator * (double r, const float3& a);
+float3 operator * (double r, const float3& f);
 
 
 #endif //RENDER_FLOAT3_H
