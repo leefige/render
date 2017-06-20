@@ -8,16 +8,18 @@ using namespace std;
 using namespace cv;
 
 int main(int argc, char** argv) {
-    if(argc != 2)
+    if(argc != 4)
     {
-        printf("Please specify sample size:\n%s sample_size\n", argv[0]);
+        printf("Please specify:\n%s width height sample_size\n", argv[0]);
         return 1;
     }
-    int smpl = atoi(argv[1]);
+    int width = atoi(argv[1]);
+    int height = atoi(argv[2]);
+    int smpl = atoi(argv[3]);
 
     Scene scene;
     Render* render = new PathTracing;
-    Camera camera(1024, 768, float3(50, 52, 295.6), float3(0, -0.042612, -1).normalize(), 0.5312, smpl, render);
+    Camera camera(width, height, float3(50, 52, 295.6), float3(0, -0.042612, -1).normalize(), 0.5312, smpl, render);
 
     /*-------------------Setup Scene-------------------*/
 
