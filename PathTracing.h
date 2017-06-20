@@ -27,6 +27,8 @@ public:
 
     void
     sampling(int x, int y, int threadID);
+
+    void multiSampling(int &y, int &x, bool &isFin);
 };
 
 #endif //RENDER_PATHTRACING_H

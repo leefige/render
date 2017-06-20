@@ -93,28 +93,43 @@ void PathTracing::rendering(int h, int w, float3 fx, float3 fy, float3 pos, floa
     this->samples = samples;
 
     for (int y = 0; y < h; y++) {
-        completeThread = new bool[MAX_THREADS];
-        memset(completeThread, 0, MAX_THREADS * sizeof(bool));
-
         int x = 0;
-        for(int i = 0; i < MAX_THREADS; i++)
-        {
-            thread subThread(&sampling, this, x, y, i);
-            x++;
-            if (i == MAX_THREADS - 1)
-                subThread.join();
-            else
-                subThread.detach();
+        while(x < w) {
+            for (bool end = false; !end;) {
+                end = true;
+                multiSampling(y, x, end);
+            }
         }
-
-        for (bool end = false; !end; ) {
-            end = true;
-            for (int i = 0; i < MAX_THREADS; i++)
-                if (!completeThread[i])
-                    end = false;
-        }
-        delete[] completeThread;
     }
+}
+
+void PathTracing::multiSampling(int &y, int &x, bool &isFin) {
+    completeThread = new bool[MAX_THREADS];
+    memset(completeThread, 0, MAX_THREADS * sizeof(bool));
+    for(int i = 0; i < MAX_THREADS; i++)
+            {
+                thread subThread(&sampling, this, x, y, i);
+                x++;
+                if (i == MAX_THREADS - 1)
+                    subThread.join();
+                else
+                    subThread.detach();
+            }
+
+    for (bool end = false; !end; ) {
+                end = true;
+                for (int i = 0; i < MAX_THREADS; i++) {
+                    if (!completeThread[i]) {
+                        end = false;
+                    }
+//                  else {
+//                        printf("true\n");
+//                    }
+                }
+            }
+    delete[] completeThread;
+    completeThread = NULL;
+    isFin = true;
 }
 
 void PathTracing::sampling(int x, int y, int threadID)
