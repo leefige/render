@@ -59,12 +59,12 @@ Mat Camera::printPhoto() const {
 }
 
 void Camera::takePhoto(Scene *scene) {
-    float3 cx = float3(w * f_len / h, 0, 0);
-    float3 cy = cx.cross(direct).normalize() * f_len;
+    float3 fx = float3(w * f_len / h, 0, 0);
+    float3 fy = fx.cross(direct).normalize() * f_len;
     time_t ctime = time(NULL);
     unsigned int seed = int(ctime);
 //    srand(seed);
-    render->rendering(h, w, cx, cy, pos, direct, scene->objs, film, samples);
+    render->rendering(h, w, fx, fy, pos, direct, scene->objs, film, samples);
 }
 
 #endif //RENDER_CAMERA_H

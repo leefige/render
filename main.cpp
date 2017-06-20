@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     Sphere sphere1(float3(40, 9.5, 94), 9.5, sp1_m);
 
     Material* sp2_m = new PureColor(REFRACTIVE, Color(200, 200, 200));
-    Sphere sphere2(float3(73,14,78), 14, sp2_m);
+    Sphere sphere2(float3(79,14,78), 14, sp2_m);
 
     Material* sp3_m = new Grain(SPECULAR, "../grain/marble.bmp");
 //    Material* sp3_m = new PureColor(SPECULAR, Color(200, 200, 200));
@@ -34,8 +34,8 @@ int main(int argc, char** argv) {
     Material* sp4_m = new Grain(REFRACTIVE, "../grain/wallpaper.jpg");
     Sphere sphere4(float3(55, 6, 114), 6, sp4_m);
 
-    Material* lt_m = new PureColor(DIFFUSE, Color(), Color(5000, 5000, 5000));
-    Sphere light(float3(50,681.6-.27,84), 600, lt_m);
+    Material* lt_m = new PureColor(DIFFUSE, Color(), Color(5500, 5500, 5200));
+    Sphere light(float3(50,681.6-.27,81), 600, lt_m);
 
     Material* lw_m = new PureColor(DIFFUSE, Color(200, 100, 100));
     Sphere left(float3(1e5+1,40.8,81.6), 1e5, lw_m);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(render)
+project(mrender)
 
 #set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -pthread -fopenmp")
@@ -12,8 +12,6 @@ set(SOURCE_FILES
 include_directories(
         D:\\\\Develop\\\\opencv\\\\build\\\\include
 )
-
-add_executable(render ${SOURCE_FILES})
 
 set(OpenCV_LIBS
         "D:\\\\Develop\\\\opencv\\\\build\\\\x86\\\\mingw\\\\lib\\\\libopencv_calib3d320.dll.a"
@@ -78,5 +76,8 @@ set(OpenCV_LIBS
         "D:\\\\Develop\\\\opencv\\\\build\\\\x86\\\\mingw\\\\lib\\\\libopencv_video_pch_dephelp.a"
         )
 
-target_link_libraries(render ${OpenCV_LIBS})
+
+add_executable(mrender ${SOURCE_FILES})
+
+target_link_libraries(mrender ${OpenCV_LIBS})
 

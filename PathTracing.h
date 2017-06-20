@@ -10,13 +10,23 @@
 #include "Light.h"
 #include <vector>
 
+#define MAX_THREADS 8
+
 class PathTracing: public Render {
     bool* completeThread;
+    int h, w;
+    float3 fx, fy, pos, direct;
+    vector<Object *> *objs;
+    Film *film;
+    int samples;
 
 public:
     Color tracing(Light light, int depth, vector<Object *> &objs);
     void rendering(int h, int w, float3 fx, float3 fy, float3 pos, float3 direct,
                    vector<Object *> &objs, Film &film, int samples);
+
+    void
+    sampling(int x, int y, int threadID);
 };
 
 #endif //RENDER_PATHTRACING_H

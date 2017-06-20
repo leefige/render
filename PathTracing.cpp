@@ -8,8 +8,11 @@
 #include <cstdio>
 #include <thread>
 #include <mutex>
+#include <memory.h>
 
-//std::mutex * completeRow;
+using namespace std;
+
+mutex * completeRow;
 
 Color PathTracing::tracing(Light light, int depth, vector<Object *> &objs) {
     double distance;
@@ -79,30 +82,62 @@ Color PathTracing::tracing(Light light, int depth, vector<Object *> &objs) {
 void PathTracing::rendering(int h, int w, float3 fx, float3 fy, float3 pos, float3 dir, vector<Object *> &objs,
                             Film &film, int samples)
 {
+    this->h = h;
+    this->w = w;
+    this->fx = fx;
+    this->fy = fy;
+    this->pos = pos;
+    this->direct = dir;
+    this->objs = &objs;
+    this->film = &film;
+    this->samples = samples;
 
-    for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++)
+    for (int y = 0; y < h; y++) {
+        completeThread = new bool[MAX_THREADS];
+        memset(completeThread, 0, MAX_THREADS * sizeof(bool));
+
+        int x = 0;
+        for(int i = 0; i < MAX_THREADS; i++)
         {
-            printf("\r [%5.2lf%%] Rendering......", (y * w + x) * 100 / double(h * w));
-            for (int sy = 0; sy < 2; sy++)
-                for (int sx = 0; sx < 2; sx++)
+            thread subThread(&sampling, this, x, y, i);
+            x++;
+            if (i == MAX_THREADS - 1)
+                subThread.join();
+            else
+                subThread.detach();
+        }
+
+        for (bool end = false; !end; ) {
+            end = true;
+            for (int i = 0; i < MAX_THREADS; i++)
+                if (!completeThread[i])
+                    end = false;
+        }
+        delete[] completeThread;
+    }
+}
+
+void PathTracing::sampling(int x, int y, int threadID)
+{
+    printf("\r [%5.2lf%%] Rendering......", (y * w + x) * 100 / double(h * w));
+    for (int sy = 0; sy < 2; sy++) {
+        for (int sx = 0; sx < 2; sx++) {
+            Color pix = Color();
+//#pragma omp parallel for schedule(dynamic, 1)      // OpenMP
+            for (int s = 0; s < samples; s++) {
+                double r1 = 2 * rand() / (double) RAND_MAX;
+                double dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
+                double r2 = 2 * rand() / (double) RAND_MAX;
+                double dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
+                float3 d = fx * (((sx + 0.5 + dx) / 2 + x) / w - 0.5) +
+                           fy * (((sy + 0.5 + dy) / 2 + y) / h - 0.5) + direct;
+//#pragma omp critical
                 {
-                    Color pix = Color();
-#pragma omp parallel for schedule(dynamic, 1)      // OpenMP
-                    for (int s = 0; s < samples; s++)
-                    {
-                        double r1 = 2 * rand() / (double) RAND_MAX;
-                        double dx = r1 < 1 ? sqrt(r1) - 1 : 1 - sqrt(2 - r1);
-                        double r2 = 2 * rand() / (double) RAND_MAX;
-                        double dy = r2 < 1 ? sqrt(r2) - 1 : 1 - sqrt(2 - r2);
-                        float3 d = fx * (((sx + 0.5 + dx) / 2 + x) / w - 0.5) +
-                                   fy * (((sy + 0.5 + dy) / 2 + y) / h - 0.5) + dir;
-#pragma omp critical
-                        {
-                            pix = pix + tracing(Light(pos + d * 130, d.normalize()), 0, objs) * (1.0 / samples);
-                        }
-                    }   // end sampling
-                    film.writePix(x, y, pix);
+                    pix = pix + tracing(Light(pos + d * 130, d.normalize()), 0, *objs) * (1.0 / samples);
                 }
-        } // end for
+            }   // end sampling
+            film->writePix(x, y, pix);
+        }
+    }
+    completeThread[threadID] = true;
 }
